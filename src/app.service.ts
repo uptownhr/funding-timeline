@@ -5,7 +5,11 @@ import { Cron } from '@nestjs/schedule';
 export class AppService {
   @Cron('* * * * * *')
   getHello(): string {
-    console.log('hello world', process.env.PH_TOKEN)
+    console.log('hello world', process.env.PH_TOKEN);
     return 'Hello World!';
+  }
+
+  getPHStartups() {
+    return [false];
   }
 }

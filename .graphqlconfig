@@ -1,0 +1,16 @@
+{
+  "name": "Funding Timeline",
+  "schemaPath": "schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "Product Hunt Graphql": {
+        "url": "https://api.producthunt.com/v2/api/graphql",
+        "headers": {
+          "user-agent": "JS GraphQL",
+          "Authorization": "Bearer ${env: PH_TOKEN}"
+        },
+        "introspect": false
+      }
+    }
+  }
+}
