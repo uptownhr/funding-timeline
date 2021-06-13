@@ -10,7 +10,7 @@ interface test {
 @Injectable()
 export class AppService {
   constructor(private readonly phClient: ProductHuntClient) {}
-  @Cron('0 * * * * *')
+  @Cron('0 0 * * * *')
   async getHello() {
     const startups = await this.getPHStartups();
     return startups;
