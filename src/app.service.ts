@@ -25,6 +25,8 @@ export class AppService {
             node {
               id
               name
+              votesCount
+              createdAt
             }
           }
         }
