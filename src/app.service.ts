@@ -12,7 +12,7 @@ export class AppService {
   constructor(private readonly phClient: ProductHuntClient) {}
   @Cron('0 0 * * * *')
   async getHello() {
-    console.log('hello');
+    console.log('hello 1');
     const startups = await this.getPHStartups();
     return startups;
   }
