@@ -13,6 +13,7 @@ import { ProductHuntPost } from './ph.model';
     ConfigModule.forRoot(),
     TypegooseModule.forRoot(process.env.MONGO_URL, {
       useNewUrlParser: true,
+      useUnifiedTopology: true,
     }),
     TypegooseModule.forFeature([ProductHuntPost]),
   ],
