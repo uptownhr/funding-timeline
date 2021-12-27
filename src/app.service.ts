@@ -1,87 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { gql } from 'graphql-request';
-import { ProductHuntClient } from './phClient';
+import { PH_CLIENT_NEST_PROVIDER } from './phClient';
 import { InjectModel } from 'nestjs-typegoose';
 import { ProductHuntPost } from './ph.model';
 import { ReturnModelType } from '@typegoose/typegoose';
-
-interface test {
-  name: string;
-}
+import { Sdk } from './post.gql.client';
 
 @Injectable()
 export class AppService {
   constructor(
-    private readonly phClient: ProductHuntClient,
+    @Inject(PH_CLIENT_NEST_PROVIDER)
+    private readonly phSDK: Sdk,
+
     @InjectModel(ProductHuntPost)
     private readonly productHuntModel: ReturnModelType<typeof ProductHuntPost>,
   ) {}
-  @Cron('0 0 * * * *')
+
+  @Cron('0 */4 * * * *')
   async getHello() {
     console.log('hello 1');
-    const startups = await this.getPHStartups();
+    const { posts } = await this.phSDK.GetPosts();
 
-    await startups.map((startup) => {
-      const { id, name, votesCount, createdAt } = startup.node;
+    await Promise.all(
+      posts.edges.map((startup) => {
+        const { id, name, votesCount, createdAt } = startup.node;
 
-      return this.productHuntModel
-        .create({
-          name,
-          votesCount,
-          createdAt,
-          phId: id,
-          raw: startup.node,
-        })
-        .catch((e) => {
-          console.log('e', e);
-        });
-    });
-
-    return startups;
-  }
-
-  async getPHStartups() {
-    const query = gql`
-      {
-        posts {
-          edges {
-            node {
-              id
-              url
-              user {
-                id
-                name
-                username
-                websiteUrl
-                twitterUsername
-              }
-              website
-              name
-              tagline
-              slug
-              thumbnail {
-                type
-                url
-                videoUrl
-              }
-              description
-              reviewsCount
-              reviewsRating
-              commentsCount
-              votesCount
-              createdAt
+        return this.productHuntModel
+          .create({
+            name,
+            votesCount,
+            createdAt,
+            phId: id,
+            raw: startup.node,
+          })
+          .catch((e) => {
+            if (e.code === 11000) {
+              console.log('duplicate found - updating count', {
+                name,
+                votesCount,
+                phId: id,
+              });
+              return this.productHuntModel.update(
+                { phId: id },
+                { $set: { votesCount, updatedAt: new Date() } },
+              );
             }
-          }
-        }
-      }
-    `;
 
-    try {
-      const res = await this.phClient.request(query);
-      return res.posts.edges;
-    } catch (e) {
-      console.log('error', e);
-    }
+            console.error(e);
+          });
+      }),
+    );
+
+    return posts.edges;
   }
 }

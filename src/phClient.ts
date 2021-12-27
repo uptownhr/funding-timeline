@@ -1,18 +1,27 @@
 import { GraphQLClient } from 'graphql-request';
-import { Injectable } from '@nestjs/common';
+import { Scope } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { getSdk, Sdk } from './post.gql.client';
 
 const PRODUCT_HUNT_API_URL = 'https://api.producthunt.com/v2/api/graphql';
 
-@Injectable()
-export class ProductHuntClient extends GraphQLClient {
-  constructor(conf: ConfigService) {
-    const PRODUCT_HUNT_API_TOKEN = conf.get('PH_TOKEN');
+export const PH_CLIENT_NEST_PROVIDER = 'PH';
 
-    super(PRODUCT_HUNT_API_URL, {
-      headers: {
-        Authorization: `Bearer ${PRODUCT_HUNT_API_TOKEN}`,
-      },
-    });
-  }
+export const PHClientProvider = {
+  provide: PH_CLIENT_NEST_PROVIDER,
+  useFactory: getPHClient,
+  inject: [ConfigService],
+  scope: Scope.DEFAULT, // singleton
+};
+
+export function getPHClient(conf: ConfigService): Sdk {
+  const PRODUCT_HUNT_API_TOKEN = conf.get('PH_TOKEN');
+
+  const client = new GraphQLClient(PRODUCT_HUNT_API_URL, {
+    headers: {
+      Authorization: `Bearer ${PRODUCT_HUNT_API_TOKEN}`,
+    },
+  });
+
+  return getSdk(client);
 }

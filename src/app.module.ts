@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
-import { ProductHuntClient } from './phClient';
+import { PHClientProvider } from './phClient';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { ProductHuntPost } from './ph.model';
 
@@ -18,6 +18,6 @@ import { ProductHuntPost } from './ph.model';
     TypegooseModule.forFeature([ProductHuntPost]),
   ],
   controllers: [AppController],
-  providers: [AppService, ProductHuntClient],
+  providers: [AppService, PHClientProvider],
 })
 export class AppModule {}

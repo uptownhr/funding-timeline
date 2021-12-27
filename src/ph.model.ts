@@ -1,12 +1,13 @@
 import { modelOptions, mongoose, prop, Severity } from '@typegoose/typegoose';
 import { IsString } from 'class-validator';
+import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 
 @modelOptions({
   options: {
     allowMixed: Severity.ALLOW,
   },
 })
-export class ProductHuntPost {
+export class ProductHuntPost extends TimeStamps {
   @IsString()
   @prop({ required: true, unique: true })
   phId: string;
@@ -22,7 +23,4 @@ export class ProductHuntPost {
   @prop({ type: mongoose.Schema.Types.Mixed })
   // eslint-disable-next-line @typescript-eslint/ban-types
   raw: object;
-
-  @prop()
-  createdAt: Date;
 }
